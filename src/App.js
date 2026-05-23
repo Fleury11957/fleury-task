@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LangProvider } from './context/LangContext';
+import Auth from './Auth';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import Kanban from './pages/Kanban';
@@ -12,12 +13,12 @@ import About from './pages/About';
 import Projects from './pages/Projects';
 import Landing from './pages/Landing';
 import Notifications from './pages/Notifications';
-import Auth from './Auth';
  
 function AppContent() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [showAuth, setShowAuth] = useState(false);
   const { theme } = useTheme();
  
   useEffect(() => {
@@ -25,7 +26,9 @@ function AppContent() {
       setSession(session);
       setLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+    });
     return () => subscription.unsubscribe();
   }, []);
  
@@ -54,25 +57,25 @@ function AppContent() {
         borderRadius: '50%',
         animation: 'spin 0.7s linear infinite',
       }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
  
   if (!session) {
     if (showAuth) return <Auth />;
     return <Landing onLogin={() => setShowAuth(true)} />;
-}
+  }
  
   const pages = {
-    dashboard: <Dashboard session={session} setCurrentPage={setCurrentPage} />,
-    kanban:    <Kanban    session={session} />,
-    calendar:  <Calendar  session={session} />,
-    stats:     <Stats     session={session} />,
-    settings:  <Settings  session={session} />,
-    about: <About session={session} />,
-    projects: <Projects session={session} />,
+    dashboard:     <Dashboard     session={session} setCurrentPage={setCurrentPage} />,
+    kanban:        <Kanban        session={session} />,
+    calendar:      <Calendar      session={session} />,
+    stats:         <Stats         session={session} />,
+    settings:      <Settings      session={session} />,
+    about:         <About         session={session} />,
+    projects:      <Projects      session={session} />,
     notifications: <Notifications session={session} />,
   };
-  const [showAuth, setShowAuth] = useState(false);
  
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>

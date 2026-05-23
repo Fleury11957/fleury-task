@@ -12,6 +12,7 @@ import About from './pages/About';
 import Projects from './pages/Projects';
 import Landing from './pages/Landing';
 import Notifications from './pages/Notifications';
+import Auth from './Auth';
  
 function AppContent() {
   const [session, setSession] = useState(null);
@@ -56,7 +57,10 @@ function AppContent() {
     </div>
   );
  
-  if (!session) return <Landing onLogin={() => {}} />;
+  if (!session) {
+    if (showAuth) return <Auth />;
+    return <Landing onLogin={() => setShowAuth(true)} />;
+}
  
   const pages = {
     dashboard: <Dashboard session={session} setCurrentPage={setCurrentPage} />,
@@ -68,6 +72,7 @@ function AppContent() {
     projects: <Projects session={session} />,
     notifications: <Notifications session={session} />,
   };
+  const [showAuth, setShowAuth] = useState(false);
  
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>

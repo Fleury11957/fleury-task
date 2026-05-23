@@ -1,8 +1,9 @@
+
 import { useState } from 'react';
 import { supabase } from './lib/supabase';
  
 export default function Auth() {
-  const [tab, setTab] = useState('login'); // 'login' | 'register'
+  const [tab, setTab] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -10,243 +11,225 @@ export default function Auth() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
  
-  const resetMessages = () => {
-    setError('');
-    setSuccess('');
-  };
+  const reset = () => { setError(''); setSuccess(''); };
  
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    resetMessages();
- 
+    setLoading(true); reset();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
- 
-    if (error) {
-      setError(
-        error.message === 'Invalid login credentials'
-          ? 'Email ou mot de passe incorrect.'
-          : error.message
-      );
-    }
-    // Si succès, Supabase met à jour la session automatiquement
-    // App.js détectera le changement via onAuthStateChange
+    if (error) setError('Email ou mot de passe incorrect.');
     setLoading(false);
   };
  
   const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    resetMessages();
- 
+    setLoading(true); reset();
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
-      setLoading(false);
-      return;
+      setError('Le mot de passe doit contenir au moins 6 caracteres.');
+      setLoading(false); return;
     }
- 
     const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-      },
+      email, password,
+      options: { data: { full_name: fullName } },
     });
- 
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess('Compte créé ! Vérifiez votre email pour confirmer votre inscription.');
-      setEmail('');
-      setPassword('');
-      setFullName('');
+    if (error) setError(error.message);
+    else {
+      setSuccess('Compte cree ! Verifiez votre email pour confirmer.');
+      setEmail(''); setPassword(''); setFullName('');
     }
     setLoading(false);
   };
  
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div style={{
+      minHeight: '100vh',
+      background: '#f5f5f5',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+      fontFamily: "'Inter', sans-serif",
+    }}>
+      <div style={{ width: '100%', maxWidth: 420 }}>
  
-      {/* Fond décoratif */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-600 rounded-full opacity-10 blur-3xl" />
-      </div>
- 
-      <div className="relative w-full max-w-md">
- 
-        {/* Logo / Titre */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl mb-4 shadow-lg shadow-blue-600/30">
-            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{
+            width: 60, height: 60,
+            background: '#1a2744',
+            borderRadius: 18,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px rgba(26,39,68,0.15)',
+          }}>
+            <svg width="30" height="30" fill="none" stroke="white" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">TaskFlow</h1>
-          <p className="text-slate-400 text-sm mt-1">Gérez vos projets en équipe</p>
+          <div style={{ fontSize: 28, fontWeight: 800, color: '#1a2744', letterSpacing: '-0.5px' }}>
+            Fleury <span style={{ color: '#1d9e75' }}>Task</span>
+          </div>
+          <div style={{ fontSize: 14, color: '#737373', marginTop: 6 }}>
+            Gerez vos projets et taches avec style
+          </div>
         </div>
  
-        {/* Carte principale */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        {/* Carte */}
+        <div style={{
+          background: 'white',
+          borderRadius: 20,
+          border: '1px solid #e8e8e8',
+          padding: '32px 28px',
+          boxShadow: '0 4px 32px rgba(26,39,68,0.07)',
+        }}>
  
           {/* Onglets */}
-          <div className="flex bg-slate-800 rounded-xl p-1 mb-6">
-            <button
-              onClick={() => { setTab('login'); resetMessages(); }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-                tab === 'login'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                  : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              Connexion
-            </button>
-            <button
-              onClick={() => { setTab('register'); resetMessages(); }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-                tab === 'register'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                  : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              Inscription
-            </button>
+          <div style={{
+            display: 'flex',
+            background: '#f5f5f5',
+            borderRadius: 12,
+            padding: 4,
+            marginBottom: 28,
+          }}>
+            {[
+              { id: 'login', label: 'Connexion' },
+              { id: 'register', label: 'Inscription' },
+            ].map(item => (
+              <button key={item.id}
+                onClick={() => { setTab(item.id); reset(); }}
+                style={{
+                  flex: 1, padding: '10px 0',
+                  borderRadius: 9, border: 'none',
+                  fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: "'Inter', sans-serif",
+                  background: tab === item.id ? '#1a2744' : 'transparent',
+                  color: tab === item.id ? 'white' : '#737373',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
  
-          {/* Message d'erreur */}
+          {/* Erreur */}
           {error && (
-            <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4">
-              <svg className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-red-400 text-sm">{error}</p>
+            <div style={{
+              background: '#fff1f1', border: '1px solid #fecaca',
+              borderRadius: 10, padding: '10px 14px',
+              fontSize: 13, color: '#dc2626', marginBottom: 20,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              {error}
             </div>
           )}
  
-          {/* Message de succès */}
+          {/* Succes */}
           {success && (
-            <div className="flex items-start gap-3 bg-green-500/10 border border-green-500/20 rounded-xl p-3 mb-4">
-              <svg className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-green-400 text-sm">{success}</p>
+            <div style={{
+              background: '#e8f8f2', border: '1px solid #9fe1cb',
+              borderRadius: 10, padding: '10px 14px',
+              fontSize: 13, color: '#0f6e56', marginBottom: 20,
+            }}>
+              {success}
             </div>
           )}
  
-          {/* Formulaire LOGIN */}
+          {/* LOGIN */}
           {tab === 'login' && (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <form onSubmit={handleLogin}>
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#737373', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Adresse email
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  className="ft-input"
+                  type="email" value={email} required
                   placeholder="vous@exemple.com"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  onChange={e => setEmail(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <div style={{ marginBottom: 26 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#737373', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Mot de passe
                 </label>
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="••••••••"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  className="ft-input"
+                  type="password" value={password} required
+                  placeholder="Min. 6 caracteres"
+                  onChange={e => setPassword(e.target.value)}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 text-white font-medium py-2.5 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2 mt-2"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Connexion...
-                  </>
-                ) : 'Se connecter'}
+              <button type="submit" disabled={loading} style={{
+                width: '100%', padding: 14,
+                background: '#1a2744', color: 'white',
+                border: 'none', borderRadius: 11,
+                fontSize: 14, fontWeight: 700,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontFamily: "'Inter', sans-serif",
+                opacity: loading ? 0.7 : 1,
+              }}>
+                {loading ? 'Connexion...' : 'Se connecter'}
               </button>
             </form>
           )}
  
-          {/* Formulaire INSCRIPTION */}
+          {/* INSCRIPTION */}
           {tab === 'register' && (
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <form onSubmit={handleRegister}>
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#737373', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Nom complet
                 </label>
                 <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
+                  className="ft-input"
+                  type="text" value={fullName} required
                   placeholder="Jean Dupont"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  onChange={e => setFullName(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#737373', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Adresse email
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  className="ft-input"
+                  type="email" value={email} required
                   placeholder="vous@exemple.com"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  onChange={e => setEmail(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <div style={{ marginBottom: 26 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#737373', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Mot de passe
-                  <span className="text-slate-500 font-normal ml-1">(min. 6 caractères)</span>
                 </label>
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="••••••••"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  className="ft-input"
+                  type="password" value={password} required
+                  placeholder="Min. 6 caracteres"
+                  onChange={e => setPassword(e.target.value)}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 text-white font-medium py-2.5 rounded-xl text-sm transition-colors duration-200 flex items-center justify-center gap-2 mt-2"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Création...
-                  </>
-                ) : 'Créer mon compte'}
+              <button type="submit" disabled={loading} style={{
+                width: '100%', padding: 14,
+                background: '#1d9e75', color: 'white',
+                border: 'none', borderRadius: 11,
+                fontSize: 14, fontWeight: 700,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontFamily: "'Inter', sans-serif",
+                opacity: loading ? 0.7 : 1,
+              }}>
+                {loading ? 'Creation...' : 'Creer mon compte'}
               </button>
             </form>
           )}
- 
         </div>
  
-        <p className="text-center text-slate-600 text-xs mt-6">
-          TaskFlow — Gestion de projets en équipe
-        </p>
+        <div style={{ textAlign: 'center', color: '#a3a3a3', fontSize: 12, marginTop: 24 }}>
+          Fleury Task &copy; {new Date().getFullYear()} &mdash; Tous droits reserves
+        </div>
       </div>
     </div>
   );

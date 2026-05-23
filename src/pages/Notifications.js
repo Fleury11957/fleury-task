@@ -33,6 +33,9 @@ export function useNotifications(session) {
       .subscribe();
  
     return () => supabase.removeChannel(channel);
+  // eslint-disable-next-line
+  useEffect(() => {
+    fetchUnread();
   }, [session]);
  
   async function fetchUnread() {

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LangProvider } from './context/LangContext';
-import Auth from './Auth';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import Kanban from './pages/Kanban';
@@ -65,8 +64,6 @@ function AppContent() {
     calendar:  <Calendar  session={session} />,
     stats:     <Stats     session={session} />,
     settings:  <Settings  session={session} />,
-    about: <About session={session} />,
-    notifications: <Notifications session={session} />,
     about: <About session={session} />,
     projects: <Projects session={session} />,
     notifications: <Notifications session={session} />,

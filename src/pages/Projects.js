@@ -5,7 +5,7 @@ import { useLang } from '../context/LangContext';
  
 export default function Projects({ session }) {
   const { theme } = useTheme();
-  const { t, lang } = useLang();
+  const { lang } = useLang();
   const dark = theme === 'dark';
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -655,4 +655,4 @@ export default function Projects({ session }) {
       )}
     </div>
   );
-} 
+}  

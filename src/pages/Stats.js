@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LangContext';
-import TaskDetail from '../components/TaskDetail';
  
 export default function Stats({ session }) {
   const { theme } = useTheme();

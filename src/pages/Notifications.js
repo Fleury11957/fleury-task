@@ -1,58 +1,8 @@
- import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LangContext';
  
-// ============================================================
-// Hook global à utiliser dans App.js pour les notifications
-// ============================================================
-export function useNotifications(session) {
-  const [unread, setUnread] = useState(0);
- 
-  useEffect(() => {
-    if (!session) return;
-    fetchUnread();
- 
-    const channel = supabase
-      .channel('notifications')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${session.user.id}`,
-      }, () => {
-        fetchUnread();
-        // Notification push navigateur
-        if (Notification.permission === 'granted') {
-          new Notification('Fleury Task', {
-            body: 'Vous avez une nouvelle notification !',
-            icon: '/developer.png',
-          });
-        }
-      })
-      .subscribe();
- 
-    return () => supabase.removeChannel(channel);
-  // eslint-disable-next-line
-  useEffect(() => {
-    fetchUnread();
-  }, [session]);
- 
-  async function fetchUnread() {
-    const { count } = await supabase
-      .from('notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', session.user.id)
-      .eq('is_read', false);
-    setUnread(count || 0);
-  }
- 
-  return { unread, refetch: fetchUnread };
-}
- 
-// ============================================================
-// Page Notifications
-// ============================================================
 export default function Notifications({ session }) {
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -110,7 +60,7 @@ export default function Notifications({ session }) {
       icon: 'ti-user-check',
       color: '#3b82f6',
       bg: '#eff6ff',
-      label: lang === 'fr' ? 'Tâche assignée' : 'Task assigned',
+      label: lang === 'fr' ? 'Tache assignee' : 'Task assigned',
     },
     task_commented: {
       icon: 'ti-message-circle',
@@ -122,7 +72,7 @@ export default function Notifications({ session }) {
       icon: 'ti-clock',
       color: '#f59e0b',
       bg: '#fff8eb',
-      label: lang === 'fr' ? 'Échéance proche' : 'Due soon',
+      label: lang === 'fr' ? 'Echeance proche' : 'Due soon',
     },
     member_invited: {
       icon: 'ti-users',
@@ -136,9 +86,9 @@ export default function Notifications({ session }) {
     const now = new Date();
     const d = new Date(date);
     const diff = Math.floor((now - d) / 1000);
-    if (diff < 60) return lang === 'fr' ? 'À l\'instant' : 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    if (diff < 60) return lang === 'fr' ? 'A instant' : 'Just now';
+    if (diff < 3600) return diff / 60 < 2 ? '1 min' : Math.floor(diff / 60) + ' min';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h';
     return d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' });
   };
  
@@ -160,7 +110,6 @@ export default function Notifications({ session }) {
   return (
     <div className="ft-page fade-up">
  
-      {/* HEADER */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div className="ft-page-eyebrow" style={{ textAlign: 'left' }}>
@@ -176,8 +125,8 @@ export default function Notifications({ session }) {
           </h1>
           <p className="ft-page-subtitle">
             {unread > 0
-              ? `${unread} ${lang === 'fr' ? 'non lue(s)' : 'unread'}`
-              : lang === 'fr' ? 'Tout est à jour !' : 'All caught up!'}
+              ? unread + ' ' + (lang === 'fr' ? 'non lue(s)' : 'unread')
+              : lang === 'fr' ? 'Tout est a jour !' : 'All caught up!'}
           </p>
         </div>
         {unread > 0 && (
@@ -188,11 +137,10 @@ export default function Notifications({ session }) {
         )}
       </div>
  
-      {/* BANNIÈRE PERMISSION PUSH */}
       {permission === 'default' && (
         <div style={{
           background: dark ? 'rgba(59,130,246,0.1)' : '#eff6ff',
-          border: `1px solid ${dark ? 'rgba(59,130,246,0.2)' : '#bfdbfe'}`,
+          border: '1px solid #bfdbfe',
           borderRadius: 12, padding: '16px 20px',
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', gap: 12,
@@ -207,7 +155,7 @@ export default function Notifications({ session }) {
                 {lang === 'fr' ? 'Activer les notifications push' : 'Enable push notifications'}
               </div>
               <div style={{ fontSize: 12, color: C.sub }}>
-                {lang === 'fr' ? 'Recevez des alertes en temps réel' : 'Get real-time alerts'}
+                {lang === 'fr' ? 'Recevez des alertes en temps reel' : 'Get real-time alerts'}
               </div>
             </div>
           </div>
@@ -221,21 +169,20 @@ export default function Notifications({ session }) {
       {permission === 'granted' && (
         <div style={{
           background: dark ? 'rgba(29,158,117,0.08)' : '#e8f8f2',
-          border: `1px solid ${dark ? 'rgba(29,158,117,0.15)' : '#9fe1cb'}`,
+          border: '1px solid #9fe1cb',
           borderRadius: 12, padding: '12px 16px',
           display: 'flex', alignItems: 'center', gap: 10,
           marginBottom: 20, fontSize: 13, color: '#0f6e56',
         }}>
           <i className="ti ti-bell-check" style={{ fontSize: 18 }} />
-          {lang === 'fr' ? 'Notifications push activées ✓' : 'Push notifications enabled ✓'}
+          {lang === 'fr' ? 'Notifications push activees' : 'Push notifications enabled'}
         </div>
       )}
  
-      {/* LISTE NOTIFICATIONS */}
       {notifications.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: '60px 20px',
-          background: C.card, borderRadius: 16, border: `1px solid ${C.border}`,
+          background: C.card, borderRadius: 16, border: '1px solid ' + C.border,
         }}>
           <div style={{ width: 64, height: 64, borderRadius: 16, background: '#e8f8f2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
             <i className="ti ti-bell-off" style={{ fontSize: 32, color: '#1d9e75' }} />
@@ -244,7 +191,7 @@ export default function Notifications({ session }) {
             {lang === 'fr' ? 'Aucune notification' : 'No notifications'}
           </div>
           <div style={{ fontSize: 14, color: C.sub }}>
-            {lang === 'fr' ? 'Vous êtes à jour sur tout !' : 'You\'re all caught up!'}
+            {lang === 'fr' ? 'Vous etes a jour sur tout !' : "You're all caught up!"}
           </div>
         </div>
       ) : (
@@ -257,10 +204,8 @@ export default function Notifications({ session }) {
                 style={{
                   display: 'flex', alignItems: 'flex-start', gap: 14,
                   padding: '16px 20px',
-                  background: !notif.is_read
-                    ? (dark ? 'rgba(29,158,117,0.05)' : '#fafffe')
-                    : 'transparent',
-                  borderBottom: i < notifications.length - 1 ? `1px solid ${C.border}` : 'none',
+                  background: !notif.is_read ? (dark ? 'rgba(29,158,117,0.05)' : '#fafffe') : 'transparent',
+                  borderBottom: i < notifications.length - 1 ? '1px solid ' + C.border : 'none',
                   transition: 'background 0.15s',
                   cursor: 'pointer',
                 }}
@@ -268,16 +213,14 @@ export default function Notifications({ session }) {
                 onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.03)' : '#fafafa'}
                 onMouseLeave={e => e.currentTarget.style.background = !notif.is_read ? (dark ? 'rgba(29,158,117,0.05)' : '#fafffe') : 'transparent'}
               >
-                {/* Icône type */}
                 <div style={{
                   width: 42, height: 42, borderRadius: 11,
                   background: info.bg, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <i className={`ti ${info.icon}`} style={{ fontSize: 20, color: info.color }} />
+                  <i className={'ti ' + info.icon} style={{ fontSize: 20, color: info.color }} />
                 </div>
  
-                {/* Contenu */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 12, fontWeight: 600, background: info.bg, color: info.color, padding: '2px 8px', borderRadius: 99 }}>
@@ -288,19 +231,18 @@ export default function Notifications({ session }) {
                     )}
                   </div>
                   <div style={{ fontSize: 14, fontWeight: notif.is_read ? 400 : 600, color: C.text, marginBottom: 4 }}>
-                    {notif.tasks?.title || (lang === 'fr' ? 'Tâche supprimée' : 'Deleted task')}
+                    {notif.tasks ? notif.tasks.title : (lang === 'fr' ? 'Tache supprimee' : 'Deleted task')}
                   </div>
                   <div style={{ fontSize: 12, color: C.sub }}>
                     {formatTime(notif.created_at)}
                   </div>
                 </div>
  
-                {/* Supprimer */}
                 <button
                   onClick={e => { e.stopPropagation(); deleteNotification(notif.id); }}
                   style={{
                     width: 28, height: 28, borderRadius: 7,
-                    border: `1px solid ${C.border}`,
+                    border: '1px solid ' + C.border,
                     background: 'transparent', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: C.sub, fontSize: 14, flexShrink: 0,
